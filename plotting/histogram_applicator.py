@@ -1,15 +1,39 @@
+#!/usr/bin/python
+"""histogram_applicator.py: Applies a colour histrogram to a 2d (diffraction) dataset."""
+
+import os
+import argparse
+
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
 
-import argparse
-import os
+__author__ = "Michael T. Wharmby"
+__license__ = "MIT License"
+__data__ = "10-09-2018"
+__version__ = "0.2"
+__status__ = "Development"
+
 
 def get_img_array(image):
+    """Open an image and return it as a numpy array"""
     img = Image.open(image)
     return np.asarray(img)
 
 def histo_lim_calc(img, value_freq_percent=0.005):
+    """Calculate the upper and lower limits of the colour histogram to be applied to the data. Min and max are determined from the frequency of the occurrence of an intensity value, with selection based on the supplied percentage of the maximum frequency.
+
+    Parameters
+    ----------
+    img : numpy array
+        Image data to have histogram applied
+    value_freq_percent : float
+        Limiting percentage used to identify min and max. Default of 0.005% determined from DAWN (www.dawnsci.org)
+
+    Returns
+    -------
+    type : tuple of float
+        Min and max intensity values for the colourmap"""
     freqs, bins = np.histogram(img, bins=256)
     # Need to reduce the number of bins by one. Chop of the highest one
     bins = bins[:-1]
@@ -18,6 +42,7 @@ def histo_lim_calc(img, value_freq_percent=0.005):
     return (np.amin(more_than_min_bins), np.amax(more_than_min_bins))
 
 def plot_img(img, name=None, outlier_fraction=0.005, histo_clims=None):
+    """Create a plot of an image using matplotlib and apply the histogram with limits"""
     if name ==None:
         name = os.path.splitext(img)[0]
     img_arr = get_img_array(img)
@@ -43,6 +68,8 @@ def plot_img(img, name=None, outlier_fraction=0.005, histo_clims=None):
     #Save the image as a 300dpi png
     print("Saving {}.png...".format(name))
     plt.savefig(str(name)+".png", dpi=300)
+
+#######################################################################################################################
 
 if __name__ == '__main__':
     # are we working with a directory, a list or a  single file?
