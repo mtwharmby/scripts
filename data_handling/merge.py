@@ -9,12 +9,15 @@ import argparse
 __hdf_ext = ['.h5', '.hdf', '.nxs']
 
 def get_data(file_name, dset_path=None):
+
     if os.path.splitext(file_name)[1] in __hdf_ext and dset_path:
         with h5py.File(file_name, 'r') as data_file:
             return data_file.get(dset_path)
     else:
-        with fabio.open(file_name) as data_file:
-            return data_file.data
+        # There is no close function in fabio, so can't use a with statement and I don't see how try/except would be useful
+        data_file = fabio.open(file_name)
+        return data_file.data
+
 
 
 def merge_files(file_list, window=None):
@@ -138,7 +141,7 @@ if __name__=="__main__":
     else:
         file_list = []
         for i in file_numbers:
-            file_list.append(build_file_path(args.basename, i, args.file_ext))
+            file_list.append(os.path.join(in_path, build_file_path(args.basename, i, args.file_ext)))
 
         #TODO: What about multiple hdf files? dset path, start, end???
         datasets_to_write = merge_files(file_list, window = args.window)
@@ -153,3 +156,4 @@ if __name__=="__main__":
     out_file_name = '{0}.{1}'.format(out_file_name, 'hdf')
     out_file_name = os.path.join(out_path, out_file_name)
     create_merged_hdf(out_file_name, datasets_to_write)
+
