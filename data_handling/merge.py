@@ -2,6 +2,7 @@ import fabio
 import h5py
 import numpy as np
 import os
+import sys
 import time
 
 import argparse
@@ -114,15 +115,23 @@ if __name__=="__main__":
 
     start = 0
     end = 0
-    if args.init_n and args.final_n and not args.n_files:
+
+    if (args.init_n is args.final_n is args.n_files is None) or (args.init_n is args.final_n is args.n_files is not None):
+        print('Please specify only two of --start-at, --finish-at and --number')
+        sys.exit(1)
+
+    if args.init_n is not None and args.final_n is not None:
         start = args.init_n
         end = args.final_n + 1
-    elif args.init_n and args.n_files and not args.final_n:
+    elif args.init_n is not None and args.n_files is not None:
         start = args.init_n
         end = start + args.n_files
-    elif args.final_n and args.n_files and not args.init_n:
+    elif args.final_n is not None and args.n_files is not None:
         end = args.final_n + 1
         start = end - args.n_files
+    else:
+        print('Could not determine file numbers to merge. Did you give two of --start-at, --finish-at and --number?')
+        sys.exit(1)
 
     file_numbers = list(range(start, end))
     if args.excl:
