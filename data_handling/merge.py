@@ -26,6 +26,7 @@ def merge_files(file_list, window=None):
     n_img = len(file_list)
     dataset = np.zeros(shape=(n_img, 1, 1))
     for i in range(n_img):
+        print('Reading {}...'.format(file_list[i]))
         img = get_data(file_list[i])
         if dataset.size == n_img:
             dataset.resize((n_img, img.shape[-2], img.shape[-1]))
@@ -71,7 +72,7 @@ def merge_frames(dataset, bounds=None, window=None):
         first_frame = dataset[i]
         avgd = first_frame
         sumd = first_frame
-        print("{}/{} (Frame number: {})".format(j, len(frame_list), i))
+        print('Merging: {}/{} (Frame number: {})'.format(j, len(frame_list), i))
 
         # Here we actually do the merging.
         # i needs to start from the second (index 1) position in frame_list
@@ -80,7 +81,7 @@ def merge_frames(dataset, bounds=None, window=None):
             frame = dataset[i]
             avgd = (avgd + frame) / 2
             sumd = sumd + frame
-            print("{}/{} (Frame number: {})".format(j, len(frame_list), i))
+            print('Merging: {}/{} (Frame number: {})'.format(j, len(frame_list), i))
 
     return {"avg": avgd, "sum": sumd}
 
@@ -90,6 +91,7 @@ def build_file_path(basename, file_index, file_ext, zero_fill=5):
 
 
 def create_merged_hdf(out_file_path, datasets_to_write):
+
     with h5py.File(out_file_path, 'w') as out_data_file:
         out_data_file.create_dataset("data/averaged", data=datasets_to_write['avg'], chunks=True)
         out_data_file.create_dataset("data/summed", data=datasets_to_write['sum'], chunks=True)
