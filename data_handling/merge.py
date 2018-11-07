@@ -86,8 +86,23 @@ def merge_frames(dataset, bounds=None, window=None):
     return {"avg": avgd, "sum": sumd}
 
 
-def build_file_path(basename, file_index, file_ext, zero_fill=5):
-    return '{0}_{1:0{fill}}.{2}'.format(basename, file_index, file_ext, fill = zero_fill)
+def build_file_path(path, basename, file_index, file_ext, frame_separator='_', zero_fill=5):
+    filename = '{0}{1}{2:0{fill}}.{3}'.format(basename, frame_separator, file_index, file_ext, fill = zero_fill)
+    print(os.path.join(path, filename))
+    return os.path.join(path, filename)
+
+
+def get_frame_nr_separator(path, basename, file_index, file_ext, zero_fill=5):
+    possible_separators = ['_', '-']
+    test_filenames = []
+    for sep in possible_separators:
+        filename = build_file_path(path, basename, file_index, file_ext, frame_separator=sep, zero_fill=zero_fill)
+        test_filenames.append(filename)
+        if os.path.exists(filename):
+            return sep
+    else:
+        test_filenames_prinable = '\n'.join(test_filenames)
+        raise Exception('Could not find any of the files:\n{1}\n\nCannot determine the character which separates filename from the frame index.'.format(path, test_filenames_prinable))
 
 
 def create_merged_hdf(out_file_path, datasets_to_write):
@@ -146,13 +161,16 @@ if __name__=="__main__":
     in_path = args.in_path
     out_path = args.out_path
 
+    #Find out what character to use ofr the frame number separator:
+    frame_sep = get_frame_nr_separator(in_path, args.basename, file_numbers[0], args.file_ext)
+
     if len(file_numbers) == 1 and args.file_ext in __hdf_ext:
-        dataset = get_data(build_file_path(args.basename, file_numbers[0], args.file_ext), args.dset_path)
+        dataset = get_data(build_file_path(in_path, args.basename, file_numbers[0], args.file_ext, frame_separator=frame_sep), args.dset_path)
         datasets_to_write = merge_frames(dataset, (args.dset_start, args.dset_end), window=args.window)
     else:
         file_list = []
         for i in file_numbers:
-            file_list.append(os.path.join(in_path, build_file_path(args.basename, i, args.file_ext)))
+            file_list.append(build_file_path(in_path, args.basename, i, args.file_ext, frame_separator=frame_sep))
 
         #TODO: What about multiple hdf files? dset path, start, end???
         datasets_to_write = merge_files(file_list, window = args.window)
