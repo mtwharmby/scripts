@@ -88,7 +88,6 @@ def merge_frames(dataset, bounds=None, window=None):
 
 def build_file_path(path, basename, file_index, file_ext, frame_separator='_', zero_fill=5):
     filename = '{0}{1}{2:0{fill}}.{3}'.format(basename, frame_separator, file_index, file_ext, fill = zero_fill)
-    print(os.path.join(path, filename))
     return os.path.join(path, filename)
 
 
