@@ -157,8 +157,8 @@ if __name__=="__main__":
         for nr in args.incl:
             file_numbers.append(nr)
 
-    in_path = args.in_path
-    out_path = args.out_path
+    in_path = os.path.normpath(args.in_path)
+    out_path = os.path.normpath(args.out_path)
 
     #Find out what character to use ofr the frame number separator:
     frame_sep = get_frame_nr_separator(in_path, args.basename, file_numbers[0], args.file_ext)
@@ -184,4 +184,3 @@ if __name__=="__main__":
     out_file_name = '{0}.{1}'.format(out_file_name, 'hdf')
     out_file_name = os.path.join(out_path, out_file_name)
     create_merged_hdf(out_file_name, datasets_to_write)
-
