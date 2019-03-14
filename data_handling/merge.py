@@ -9,6 +9,10 @@ import argparse
 
 __hdf_ext = ['.h5', '.hdf', '.nxs']
 
+
+'''
+From a given file path/name, return a numpy dataset
+'''
 def get_data(file_name, dset_path=None):
 
     if os.path.splitext(file_name)[1] in __hdf_ext and dset_path:
@@ -91,6 +95,13 @@ def build_file_path(path, basename, file_index, file_ext, frame_separator='_', z
     return os.path.join(path, filename)
 
 
+'''
+TODO This would be better done with regex:
+- identify files with the basename in the given directory
+- assert structure consists of basename+sep+file_index+.+file_ext
+- extract the sep based on the same regex
+- print warning if it's not in possible_separators
+'''
 def get_frame_nr_separator(path, basename, file_index, file_ext, zero_fill=5):
     possible_separators = ['_', '-']
     test_filenames = []

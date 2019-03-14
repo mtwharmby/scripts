@@ -5,6 +5,18 @@ import numpy as np
 import os
 
 
+'''
+# TODO:
+- add additional arguments
+- add frame separator function (c.f. merge.py)
+
+'''
+
+'''
+Generates full input path + basename and merged path + merged filename
+
+TODO Move this into a main function
+'''
 def set_up_paths(basename, n_files, in_path=None, out_path=None):
     merge_filename = "{}_{:d}-merged.hdf5".format(basename, n_files)
     if out_path:
@@ -21,6 +33,12 @@ def set_up_paths(basename, n_files, in_path=None, out_path=None):
     return (merge_filename, basename)
 
 
+'''
+Creates final output file. Provide the averaged and summed datasets (could
+these be passed in as a dictionary?)
+
+TODO Should this be part of the main function too?
+'''
 def create_hdf5(merge_filename, avgd_dataset=np.empty((1,)), sumd_dataset=np.empty((1,))):
     # Create/update an hdf5 file which will hold our average & summed datasets
     with h5py.File(merge_filename, "a") as merged_f:
@@ -31,6 +49,11 @@ def create_hdf5(merge_filename, avgd_dataset=np.empty((1,)), sumd_dataset=np.emp
         merged_f.flush()
 
 
+'''
+Assembles the path and file and opens the dataset
+
+TODO This should be merged with the get_data function of merge.py
+'''
 def get_data(basename, file_num, file_ext):
     full_filename = basename + '-' + str(file_num).zfill(5) + "." + file_ext
 
@@ -39,6 +62,15 @@ def get_data(basename, file_num, file_ext):
     return img.data
 
 
+'''
+Creates two new numpy datasets (summed and averaged) which are assembled from
+the given basenames, numbers and file extensions.
+
+Window average/summing is achieved by the functions calling itself with a subset
+of the file numbers to be merged which corresponds to the window.
+
+TODO Adds bounds argument (c.f. merge.py merge_frames)
+'''
 def merge(basename, file_nums, file_ext, window=False):
     first_run = True
     for i in range(len(file_nums)):
